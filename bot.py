@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import httpx
+import time
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
 from telegram.constants import ParseMode
@@ -279,6 +280,8 @@ async def handle_more(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
+    # Wait for previous instance to stop
+    time.sleep(5)
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
