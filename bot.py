@@ -105,9 +105,11 @@ def make_prompt(batch_num: int, scenario: str, used_ideas: list[str]) -> str:
         )
 
     mb_rule = (
-        "В этой партии из 5: если зелёная зона — добавь 1 MrBeast хук, если серая — 1 MrBeast, если красная — 0."
+        "В этой партии из 3: если зелёная зона — добавь 1 MrBeast хук, иначе 0."
         if batch_num == 1
-        else "В этой партии из 5: если зелёная зона — добавь 1 MrBeast хук (второй и последний), иначе — 0."
+        else ("В этой партии из 3: если зелёная зона — добавь 1 MrBeast хук, иначе 0."
+              if batch_num == 2
+              else "В этой партии из 3: добавь 0 MrBeast хуков.")
     )
 
     return f"""{KNOWLEDGE}
@@ -116,12 +118,11 @@ def make_prompt(batch_num: int, scenario: str, used_ideas: list[str]) -> str:
 {scenario}
 {used_note}
 
-Придумай 5 визуальных хуков (партия {batch_num} из 2). Хуки ПРЯМО связаны с темой. 2D анимация.
+Придумай ровно 3 визуальных хука (партия {batch_num} из 3). Хуки ПРЯМО связаны с темой. 2D анимация.
 
 {mb_rule}
 MrBeast-хуки: type = "MrBeast: [название]".
-
-Используй БИБЛИОТЕКУ ВИЗУАЛЬНЫХ МЕТАФОР для абстрактных тем.
+Используй БИБЛИОТЕКУ ВИЗУАЛЬНЫХ МЕТАФОР.
 
 ТОЛЬКО валидный JSON, без markdown:
 {{"hooks":[{{"type":"...","preview":"...","scene":"...","timeline":[{{"time":"0–1 сек","action":"..."}},{{"time":"1–2 сек","action":"..."}},{{"time":"2–3 сек","action":"..."}}],"composition":"...","text_on_screen":"...","progressive":"...","why":"..."}}]}}"""
@@ -143,7 +144,14 @@ async def call_anthropic(prompt: str) -> list[dict]:
             },
         )
         data = response.json()
+        print("API STATUS:", response.status_code)
+        print("API RESPONSE:", json.dumps(data)[:500])
+        
+        if "error" in data:
+            raise ValueError(f"API Error: {data['error']}")
+        
         raw = "".join(b.get("text", "") for b in data.get("content", []))
+        print("RAW TEXT:", raw[:300])
 
         import re
         match = re.search(r'\{[\s\S]*\}', raw)
