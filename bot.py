@@ -115,15 +115,15 @@ def make_prompt(batch_num: int, scenario: str, used_ideas: list[str]) -> str:
 {scenario}
 {used_note}
 
-ЗАДАЧА: Предложи 5 оригинальных визуальных хуков (партия {batch_num} из 2). Каждый хук ПРЯМО связан с темой. Реализуем в 2D анимации.
+Придумай 5 визуальных хуков (партия {batch_num} из 2). Хуки ПРЯМО связаны с темой. 2D анимация.
 
 {mb_rule}
-MrBeast-хуки: в поле type пиши "MrBeast: [название техники]".
+MrBeast-хуки: type = "MrBeast: [название]".
 
-ОБЯЗАТЕЛЬНО используй БИБЛИОТЕКУ ВИЗУАЛЬНЫХ МЕТАФОР.
+Используй БИБЛИОТЕКУ ВИЗУАЛЬНЫХ МЕТАФОР для абстрактных тем.
 
-Отвечай ТОЛЬКО валидным JSON без markdown и пояснений:
-{{"hooks":[{{"type":"...","preview":"...","scene":"...","timeline":[{{"time":"0–1 сек","action":"..."}},{{"time":"1–2 сек","action":"..."}},{{"time":"2–3 сек","action":"..."}}],"composition":"...","text_on_screen":"текст / где в кадре / как встроен / цвет+эффект","progressive":"...","why":"..."}}]}}"""
+ТОЛЬКО валидный JSON, без markdown:
+{{"hooks":[{{"type":"...","preview":"...","scene":"...","timeline":[{{"time":"0–1 сек","action":"..."}},{{"time":"1–2 сек","action":"..."}},{{"time":"2–3 сек","action":"..."}}],"composition":"...","text_on_screen":"...","progressive":"...","why":"..."}}]}}"""
 
 
 async def call_anthropic(prompt: str) -> list[dict]:
@@ -137,7 +137,7 @@ async def call_anthropic(prompt: str) -> list[dict]:
             },
             json={
                 "model": "claude-sonnet-4-20250514",
-                "max_tokens": 5000,
+                "max_tokens": 7000,
                 "messages": [{"role": "user", "content": prompt}],
             },
         )
